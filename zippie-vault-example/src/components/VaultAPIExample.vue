@@ -1,7 +1,9 @@
 <template>
     <div>
+       <input v-model="vaultPath">
+
        <input v-model="messageToSign" placeholder="Message To Sign"/>
-       <button v-on:click="vaultSign('m/0', messageToSign)">Sign</button>
+       <button v-on:click="vaultSign(vaultPath, messageToSign)">Sign</button>
 
        <pre>
          <b>Sign Output: </b><br />
@@ -9,18 +11,27 @@
        </pre>
 
        <input v-model="messageToEncrypt" placeholder="Message To Encrypt" />
-       <button v-on:click="vaultEncrypt(messageToEncrypt)">Encrypt</button> 
+       <button v-on:click="vaultEncrypt(vaultPath, messageToEncrypt)">Encrypt</button> 
      
       <pre>
         <b> Encrypt Output:</b><br/>
         {{ this.encryptOutput | pretty }}
       </pre>
+
+       <input v-model="messageToDecrypt" placeholder="Message To Decrypt" />
+       <button v-on:click="vaultDecrypt(vaultPath, messageToDecrypt)">Decrypt</button> 
+
+      <pre>
+        <b> Decrypt Output:</b><br/>
+        {{ this.decryptOutput | pretty }}
+      </pre>
+
     </div>
 </template>
 
 <script>
-const vaultSecp256k1 = require("vault-api/src/secp256k1.js");
-const shajs = require('sha.js');
+import * as vaultSecp256k1 from "@zippie/vault-api/src/secp256k1.js"
+import * as shajs from 'sha.js'
 
 export default {
     name: 'VaultAPIExample',
@@ -28,10 +39,13 @@ export default {
     data: function()
     {
         return {
+            vaultPath: 'm/0',
             messageToSign: "",
             messageToEncrypt: "",
+            messageToDecrypt: "",
             signOutput: '{"result": {}}',
             encryptOutput: '{"result": {}}',
+            decryptOutput: '{"result": {}}'
         }
     },
     filters: {
@@ -48,21 +62,23 @@ export default {
       });
    },
 
-   vaultEncrypt: function(messageToEncrypt) {
-      vaultSecp256k1.keyInfo(this.vault, 'm/0').then(keyInfo => {
-        vaultSecp256k1
-          .encrypt(this.vault, keyInfo.pubkey, Buffer.from(messageToEncrypt).toString('hex'))
-          .then(encryptedMessage => {
-            this.encryptOutput = JSON.stringify(encryptedMessage);
-        });
-     });
+   vaultEncrypt: function(vaultPath, messageToEncrypt) {
+      vaultSecp256k1.keyInfo(this.vault, vaultPath)
+        .then(keyInfo => {
+          vaultSecp256k1
+            .encrypt(this.vault, keyInfo.pubkey, Buffer.from(messageToEncrypt).toString('hex'))
+            .then(encryptedMessage => {
+              this.encryptOutput = JSON.stringify(encryptedMessage);
+              this.messageToDecrypt = encryptedMessage.result;
+          });
+       });
    },
 
-   vaultDecrypt: function(encryptedMessage) {
+   vaultDecrypt: function(vaultPath, encryptedMessage) {
      vaultSecp256k1
-       .decrypt(this.vault, 'm/0', encryptedMessage)
+       .decrypt(this.vault, vaultPath, encryptedMessage)
        .then(message => {
-           this.vaultOutput(message);
+           this.decryptOutput = Buffer.from(message.result, 'hex').toString();
         });
     }
   }
