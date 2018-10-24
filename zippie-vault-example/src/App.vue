@@ -1,9 +1,9 @@
 <template>
   <div id="app">
     <img alt="Zippie logo" src="./assets/logo_rgb.svg" width="200" height="200" />
-    <h2>12-Second DApp On-Boarding</h2>
+    <h2>10-Second DApp On-Boarding</h2>
     <p>
-      Wish you could on-board new users to the blockchain revolution in just 12-seconds?
+      Wish you could on-board new users to the blockchain revolution in just 10-seconds?
     </p>
     <Vault>
       <template slot-scope="{vault}">

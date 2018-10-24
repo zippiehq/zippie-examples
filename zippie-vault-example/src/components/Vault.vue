@@ -31,7 +31,7 @@ export default {
     {
       this.vaultInitialising = true;
 
-      vault.init().then(
+      vault.init(this.vaultOpts).then(
         result => {
           this.vaultInited = true
         }
@@ -45,7 +45,7 @@ export default {
       vaultInited: false,
       vaultInitialising: false,
       zippieButton: zippieButton,
-      vaultOpts: {vaultURL: 'https://vault.dev.zippie.org'}
+      vaultOpts: {vaultURL: 'https://vault.zippie.org'}
     }
   },
   methods: {
@@ -53,7 +53,7 @@ export default {
 
       setCookie('autoSignInWith','zippieVault')
 
-      vault.init().then(
+      vault.init(this.vaultOpts).then(
         result => {
           this.vaultInited = true
         },
